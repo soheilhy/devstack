@@ -1,0 +1,47 @@
+# Flowvisor quantum plugin.
+
+# Save trace setting
+MY_XTRACE=$(set +o | grep xtrace)
+set +o xtrace
+
+FV_HOST=${FV_HOST:-localhost}
+FV_JSON_RPC_PORT=${FV_JSON_RPC_PORT:-8081}
+FV_OPENFLOW_PORT=${FV_OPENFLOW_PORT:-6633}
+FV_USERNAME=${FV_USERNAME:-fvadmin}
+FV_PASSWORD=${FV_PASSWORD:-}
+
+source $TOP_DIR/lib/quantum_plugins/ovs_base
+
+function configure_flowvisor() {
+    :
+}
+
+function init_flowvisor() {
+    install_quantum_agent_packages
+
+    echo -n "Installing OVS managed by the openflow controllers:"
+    echo "${FV_HOST}:${FV_OPENFLOW_PORT}"
+
+    _quantum_ovs_base_setup_bridge $OVS_BRIDGE
+     iniset /$Q_PLUGIN_CONF_FILE OVS integration_bridge $OVS_BRIDGE
+    _quantum_ovs_base_configure_firewall_driver
+
+    controller="tcp:${FV_HOST}:${FV_OPENFLOW_PORT}"
+    echo "Adding Network conttrollers: " ${controller}
+    sudo ovs-vsctl --no-wait set-controller ${OVS_BRIDGE} ${controller}
+}
+
+function install_flowvisor() {
+    :
+}
+
+function start_flowvisor() {
+    :
+}
+
+function stop_flowvisor() {
+    :
+}
+
+# Restore xtrace
+$MY_XTRACE
